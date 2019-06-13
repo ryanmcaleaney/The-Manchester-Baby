@@ -3,6 +3,13 @@
 
 using namespace std;
 
+machine::machine(){
+    
+}
+machine::~machine(){
+
+}
+
 void machine::initialise(){
 
 char mem[32];
@@ -45,12 +52,23 @@ int machine::binToDec(int n)
     return dec_value; 
 } 
 
-int machine::stringToInt(string s){
+int machine::stringToInt(string bin){
+//declare variables
+	int dec = 0;
+	int temp = 0;
+	int base = 1;
+	int binSize = bin.length();
+	
+	//convert binary to decimal
+	for(int i = 0; i < binSize-1; i++){
+		temp = bin[i] - '0';
+		dec = dec + temp*base;
+		base = base*2;
+	}
 
-    int num = stoi(s);
-
-    return num;
-
+	//determine if negative
+	if(bin[binSize-1] == '1'){dec = -dec;}
+	return dec;
 }
 
 string machine::reverseString(string s){
@@ -66,6 +84,8 @@ string machine::dectoBin(int n)
     while(n!=0) {
         r=(n%2==0 ?"0":"1")+r; n/=2;
     }
+
+    return r;
 }
 
 void machine::loadProgram(){
@@ -101,19 +121,22 @@ void machine::ldn(){
 }
 
 void machine::sto(){
-    memory[line].replace(0, 12, reverseString(dectoBin(acc)));
+    memory[line].replace(0, dectoBin(acc).length(), reverseString(dectoBin(acc)));
 }
 
 void machine::sub(){
-
+    acc = acc - this->binToDec(this->stringToInt(this->reverseString(this->operand)));
+    cout << -acc;
 }
 
 void machine::cmp(){
-
+    if(acc < 0){
+        line+=1;
+    }
 }
 
 void machine::stp(){
-
+    stop = true;
 }
 
 void machine::fetch(){
@@ -151,9 +174,16 @@ if(this->opcode == "111"){
 }
 
 void machine::execute(){
-
-
-
-    this->line+=1;
-
+    initialise();
+    loadProgram();
+    cout << "\nLine: "<< line << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl; 
+    int debug = 0;
+    while(stop == false ||  line != 32 || debug != 10){
+        fetch();
+        decode();
+        printmem();
+        cout << "\nLine: "<< line << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl; 
+        line+=1;
+        debug+=1;
+    }
 }

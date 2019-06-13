@@ -8,6 +8,8 @@
 
 class machine{
     public:
+        machine();
+        ~machine();
         void initialise();
         void clearmem();
         void loadProgram();
@@ -26,13 +28,13 @@ class machine{
         void sub();
         void cmp();
         void stp();
-    
-        string memory[32];
 private:
-        int acc;
+        bool stop = false;
+        std::string memory[32];
+        int acc = 0;
         std::string opcode;
         std::string operand;
-        int line = 2;
+        int line = 0;
 
 };
 
