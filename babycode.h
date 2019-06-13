@@ -1,3 +1,8 @@
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <string>
+
 #ifndef BABYCODE.H
 #define BABYCODE.H
 
@@ -7,6 +12,10 @@ class machine{
         void clearmem();
         void loadProgram();
         void printmem();
+        int binToDec(int n);
+        int stringToInt(std::string s);
+        std::string dectoBin(int n);
+        std::string reverseString(std::string s);
         void fetch();
         void decode();
         void execute();
@@ -17,13 +26,13 @@ class machine{
         void sub();
         void cmp();
         void stp();
-    private:
-        char memory[32][32];
-        int counter = 0;
-        int acc[32];
-        int opcode;
-        int operand;
-        int line;
+    
+        string memory[32];
+private:
+        int acc;
+        std::string opcode;
+        std::string operand;
+        int line = 2;
 
 };
 
