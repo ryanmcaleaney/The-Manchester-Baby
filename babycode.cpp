@@ -16,41 +16,26 @@ char mem[32];
 for(int i = 0; i<32;i++)
     mem[i] = '0';
 for(int i = 0; i < 32; i++){
-    this->memory[i] = mem;
+    memory[i] = mem;
 }
-//this->acc = mem;
+//acc = mem;
 
 
 }
 
 void machine::printmem(){
     for(int i = 0; i<32; i++){
-    cout << this->memory[i];
+    if(i < 10)
+    cout << "0";
+    cout << i << ": ";
+    cout << memory[i];
     cout << endl;
     }
     cout << endl;
 
 }
 
-int machine::binToDec(int n)
-{ 
-    int num = n; 
-    int dec_value = 0; 
-  
-    int base = 1; 
-  
-    int temp = num; 
-    while (temp) { 
-        int last_digit = temp % 10; 
-        temp = temp / 10; 
-  
-        dec_value += last_digit * base; 
-  
-        base = base * 2; 
-    } 
-  
-    return dec_value; 
-} 
+
 
 int machine::stringToInt(string bin){
 //declare variables
@@ -71,21 +56,65 @@ int machine::stringToInt(string bin){
 	return dec;
 }
 
-string machine::reverseString(string s){
+int machine::binToDec(int n)
+{ 
+    int num = htonl(n); 
+    int dec_value = 0; 
+  
+    int base = 1; 
+  
+    int temp = num; 
+    while (temp) { 
+        int last_digit = temp % 10; 
+        temp = temp / 10; 
+  
+        dec_value += last_digit * base; 
+  
+        base = base * 2; 
+    } 
+  
+    return dec_value; 
+} 
 
-    reverse(s.begin(), s.end());
-    return s;
-
-}
-
-string machine::dectoBin(int n)
+string machine::dectoBin(int dec)
 {
-    string r;
-    while(n!=0) {
-        r=(n%2==0 ?"0":"1")+r; n/=2;
-    }
+    string bin = "";	//binary value
+	int rem;			//remainder
+	int binSize; 		//size of bin value 
+	int decTemp = dec;	//temp decimal value
 
-    return r;
+
+	//make decimal positive for calculation
+	if(dec < 0){
+		decTemp = -decTemp;
+	}
+
+	//loop until full binary number has been created
+	while(decTemp != 0)
+	{
+		rem = decTemp%2;
+		decTemp = decTemp/2;
+		if(rem == 0){
+			bin = bin + '0';
+		}
+		else{
+			bin = bin + '1';
+		}
+	}
+
+	binSize = bin.length();
+	//fill in blank operand space
+	if(binSize < 32-1){
+		bin.append((32-1) - (binSize),'0');
+	}
+	//take into account twos compliment
+	if(dec < 0){
+		bin = bin + '1';
+	}
+	else{
+		bin = bin + '0';
+	}
+	return bin;
 }
 
 void machine::loadProgram(){
@@ -96,7 +125,7 @@ void machine::loadProgram(){
         while(!infile.eof()){
 
             getline(infile, line);
-            this->memory[count] = line;
+            memory[count] = line;
             count++;
 
         }
@@ -108,25 +137,24 @@ void machine::loadProgram(){
 
 void machine::jmp(){
 
-    this->line = this->binToDec(this->stringToInt(this->reverseString(this->operand)));
+    line = binToDec(stringToInt((operand)));
 
 }
 
 void machine::jrp(){
-    line = this->binToDec(this->stringToInt(this->reverseString(this->operand))) + line;
+    line = binToDec(stringToInt((operand))) + line;
 }
 
 void machine::ldn(){
-    acc = -this->binToDec(this->stringToInt(this->reverseString(this->operand)));
+    acc = -binToDec(stringToInt((operand)));
 }
 
 void machine::sto(){
-    memory[line].replace(0, dectoBin(acc).length(), reverseString(dectoBin(acc)));
+    memory[line].replace(0, dectoBin(acc).length(), (dectoBin(acc)));
 }
 
 void machine::sub(){
-    acc = acc - this->binToDec(this->stringToInt(this->reverseString(this->operand)));
-    cout << -acc;
+    acc = acc - binToDec(stringToInt((operand)));
 }
 
 void machine::cmp(){
@@ -141,34 +169,34 @@ void machine::stp(){
 
 void machine::fetch(){
 
-    this->operand = this->memory[this->line].substr(0,12);
-    this->opcode = this->memory[this->line].substr(13, 3);
-    //cout << this->opcode << " " << this->binToDec((this->stringToInt(this->reverseString(this->operand)))) << endl;
+    operand = memory[line].substr(0,12);
+    opcode = memory[line].substr(13, 3);
+    //cout << opcode << " " << binToDec((stringToInt((operand)))) << endl;
 
 }
 
 void machine::decode(){
 
-if(this->opcode == "000"){
-    this->jmp();
-}
-if(this->opcode == "100"){
-    this->jrp();
-}
-if(this->opcode == "010"){
-    this->ldn();
-}
-if(this->opcode == "110"){
-    this->sto();
-}
-if(this->opcode == "001" || this->opcode == "101"){
-    this->sub();
-}
-if(this->opcode == "011"){
-    this->cmp();
-}
-if(this->opcode == "111"){
-    this->stp();
+if(opcode == "000"){
+    jmp();
+}else
+if(opcode == "100"){
+    jrp();
+}else
+if(opcode == "010"){
+    ldn();
+}else
+if(opcode == "110"){
+    sto();
+}else
+if(opcode == "001" || opcode == "101"){
+    sub();
+}else
+if(opcode == "011"){
+    cmp();
+}else
+if(opcode == "111"){
+    stp();
 }
 
 }
@@ -176,14 +204,14 @@ if(this->opcode == "111"){
 void machine::execute(){
     initialise();
     loadProgram();
-    cout << "\nLine: "<< line << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl; 
+    cout <<"\n"<<memory[8].substr(0, 12)<<"\n"<< endl;
+    cout << "\nLine: "<< line << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl << endl; 
     int debug = 0;
-    while(stop == false ||  line != 32 || debug != 10){
+    while(stop == false){
         fetch();
         decode();
         printmem();
-        cout << "\nLine: "<< line << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl; 
+        cout << "\nLine: "<< line+1 << "\nAccumulator: " << acc << "\nopcode: " << opcode << "\noperand: " << operand << endl << endl; 
         line+=1;
-        debug+=1;
     }
 }

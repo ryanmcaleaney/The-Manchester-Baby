@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <arpa/inet.h>
 
 #ifndef BABYCODE.H
 #define BABYCODE.H
@@ -17,7 +18,7 @@ class machine{
         int binToDec(int n);
         int stringToInt(std::string s);
         std::string dectoBin(int n);
-        std::string reverseString(std::string s);
+        //std::string reverseString(std::string s);
         void fetch();
         void decode();
         void execute();

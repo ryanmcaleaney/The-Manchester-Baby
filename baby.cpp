@@ -3,7 +3,6 @@
 using namespace std;
 
 int main(){
-    
     machine m;
     m.execute();
 
